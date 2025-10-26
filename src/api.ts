@@ -6,15 +6,12 @@ export const signupUser = async (data: {
   username: string;
   email: string;
   password: string;
-}) => {
-  return axios.post(`${API_URL}/signup`, data);
-};
+}) => axios.post(`${API_URL}/signup`, data);
 
-export const loginUser = async (data: { email: string; password: string }) => {
-  return axios.post(`${API_URL}/login`, data);
-};
+export const loginUser = async (data: { email: string; password: string }) =>
+  axios.post(`${API_URL}/login`, data);
 
 export const getProfile = (token: string) =>
-  axios.get(`${API_URL}/profile`, {
+  axios.get("http://localhost:5000/api/auth/profile", {
     headers: { Authorization: `Bearer ${token}` },
   });
