@@ -3,7 +3,7 @@ import { fetchMovies, addMovie, updateMovie, deleteMovie } from "../movies";
 import { getProfile } from "../api";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
-import { FiEdit, FiTrash2, FiSearch, FiLogOut } from "react-icons/fi"; // Added FiLogOut for the button
+import { FiEdit, FiTrash2, FiSearch, FiLogOut } from "react-icons/fi";
 
 interface Movie {
   id: number;
@@ -57,7 +57,7 @@ const Dashboard: React.FC = () => {
       setMovies([]);
       setPage(1);
       setHasMore(true);
-    } catch (err: any) {
+    } catch {
       toast.error("Failed to fetch user info");
     }
   };
@@ -123,7 +123,6 @@ const Dashboard: React.FC = () => {
     }
   };
 
-  // Filter + Search logic
   const filteredMovies = movies.filter((m) => {
     const matchesSearch = m.title
       .toLowerCase()
@@ -133,15 +132,16 @@ const Dashboard: React.FC = () => {
   });
 
   return (
-    <div className="p-8 w-screen min-h-screen bg-gray-900 text-white">
+    <div className="p-4 sm:p-6 lg:p-8 w-screen min-h-screen bg-gray-900 text-white">
       {/* Header */}
-      <header className="flex justify-between items-center mb-10 border-b border-gray-700 pb-4">
-        <h1 className="text-4xl font-extrabold tracking-tight">
-          Welcome, <span className="text-indigo-400">{user?.username}</span>
+      <header className="flex flex-col sm:flex-row justify-between items-center mb-8 sm:mb-10 border-b border-gray-700 pb-4 gap-4">
+        <h1 className="text-3xl sm:text-4xl font-extrabold text-center sm:text-left">
+          Welcome,{" "}
+          <span className="text-indigo-400">{user?.username || "User"}</span>
         </h1>
         <button
           onClick={handleLogout}
-          className="flex items-center space-x-2 bg-red-600 hover:bg-red-700 transition duration-200 text-white font-semibold py-2 px-5 rounded-full shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-red-500"
+          className="flex items-center justify-center space-x-2 bg-red-600 hover:bg-red-700 transition duration-200 text-white font-semibold py-2 px-5 rounded-full shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-red-500 w-full sm:w-auto"
         >
           <FiLogOut className="text-lg" />
           <span>Logout</span>
@@ -149,170 +149,98 @@ const Dashboard: React.FC = () => {
       </header>
 
       {/* Movie Form Section */}
-      <section className="bg-gray-800 p-6 rounded-xl shadow-2xl mb-10">
-        <h2 className="text-2xl font-bold mb-6 text-indigo-400">
+      <section className="bg-gray-800 p-4 sm:p-6 rounded-xl shadow-2xl mb-8 sm:mb-10">
+        <h2 className="text-2xl font-bold mb-4 text-indigo-400 text-center sm:text-left">
           {form.id ? "Edit Movie" : "Add New Movie"}
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {/* Title */}
-          <div className="flex flex-col">
-            <label htmlFor="title" className="mb-1 text-gray-400 font-medium">
-              Title <span className="text-red-500">*</span>
-            </label>
-            <input
-              id="title"
-              type="text"
-              value={form.title || ""}
-              onChange={(e) => setForm({ ...form, title: e.target.value })}
-              className="p-3 rounded-lg bg-gray-700 border border-gray-600 placeholder-gray-500 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition shadow-inner"
-              placeholder="Enter movie title"
-            />
-          </div>
-
-          {/* Type */}
-          <div className="flex flex-col">
-            <label htmlFor="type" className="mb-1 text-gray-400 font-medium">
-              Type <span className="text-red-500">*</span>
-            </label>
-            <select
-              id="type"
-              value={form.type || ""}
-              onChange={(e) => setForm({ ...form, type: e.target.value })}
-              className="p-3 rounded-lg bg-gray-700 border border-gray-600 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition appearance-none cursor-pointer shadow-inner"
-            >
-              <option value="">Select Type</option>
-              <option value="Movie">Movie</option>
-              <option value="TV Show">TV Show</option>
-            </select>
-          </div>
-
-          {/* Director */}
-          <div className="flex flex-col">
-            <label
-              htmlFor="director"
-              className="mb-1 text-gray-400 font-medium"
-            >
-              Director
-            </label>
-            <input
-              id="director"
-              type="text"
-              value={form.director || ""}
-              onChange={(e) => setForm({ ...form, director: e.target.value })}
-              className="p-3 rounded-lg bg-gray-700 border border-gray-600 placeholder-gray-500 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition shadow-inner"
-              placeholder="Enter director name"
-            />
-          </div>
-
-          {/* Budget */}
-          <div className="flex flex-col">
-            <label htmlFor="budget" className="mb-1 text-gray-400 font-medium">
-              Budget
-            </label>
-            <input
-              id="budget"
-              type="number"
-              value={form.budget || ""}
-              onChange={(e) =>
-                setForm({ ...form, budget: parseFloat(e.target.value) })
-              }
-              className="p-3 rounded-lg bg-gray-700 border border-gray-600 placeholder-gray-500 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition shadow-inner"
-              placeholder="Enter budget (e.g., 5000000)"
-            />
-          </div>
-
-          {/* Location */}
-          <div className="flex flex-col">
-            <label
-              htmlFor="location"
-              className="mb-1 text-gray-400 font-medium"
-            >
-              Location
-            </label>
-            <input
-              id="location"
-              type="text"
-              value={form.location || ""}
-              onChange={(e) => setForm({ ...form, location: e.target.value })}
-              className="p-3 rounded-lg bg-gray-700 border border-gray-600 placeholder-gray-500 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition shadow-inner"
-              placeholder="Enter location"
-            />
-          </div>
-
-          {/* Duration */}
-          <div className="flex flex-col">
-            <label
-              htmlFor="duration"
-              className="mb-1 text-gray-400 font-medium"
-            >
-              Duration
-            </label>
-            <input
-              id="duration"
-              type="text"
-              value={form.duration || ""}
-              onChange={(e) => setForm({ ...form, duration: e.target.value })}
-              className="p-3 rounded-lg bg-gray-700 border border-gray-600 placeholder-gray-500 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition shadow-inner"
-              placeholder="Enter duration (e.g., 2h 15m)"
-            />
-          </div>
-
-          {/* Year */}
-          <div className="flex flex-col">
-            <label htmlFor="year" className="mb-1 text-gray-400 font-medium">
-              Year
-            </label>
-            <input
-              id="year"
-              type="number"
-              value={form.year || ""}
-              onChange={(e) =>
-                setForm({ ...form, year: parseInt(e.target.value) })
-              }
-              className="p-3 rounded-lg bg-gray-700 border border-gray-600 placeholder-gray-500 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition shadow-inner"
-              placeholder="Enter release year"
-            />
-          </div>
-
-          {/* Poster URL */}
-          <div className="flex flex-col">
-            <label
-              htmlFor="posterUrl"
-              className="mb-1 text-gray-400 font-medium"
-            >
-              Poster URL
-            </label>
-            <input
-              id="posterUrl"
-              type="text"
-              value={form.posterUrl || ""}
-              onChange={(e) => setForm({ ...form, posterUrl: e.target.value })}
-              className="p-3 rounded-lg bg-gray-700 border border-gray-600 placeholder-gray-500 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition shadow-inner"
-              placeholder="Enter poster URL"
-            />
-          </div>
+          {/* Reusing inputs as is */}
+          {[
+            { id: "title", label: "Title*", type: "text", key: "title" },
+            { id: "type", label: "Type*", type: "select", key: "type" },
+            {
+              id: "director",
+              label: "Director",
+              type: "text",
+              key: "director",
+            },
+            { id: "budget", label: "Budget", type: "number", key: "budget" },
+            {
+              id: "location",
+              label: "Location",
+              type: "text",
+              key: "location",
+            },
+            {
+              id: "duration",
+              label: "Duration",
+              type: "text",
+              key: "duration",
+            },
+            { id: "year", label: "Year", type: "number", key: "year" },
+            {
+              id: "posterUrl",
+              label: "Poster URL",
+              type: "text",
+              key: "posterUrl",
+            },
+          ].map((field) => (
+            <div key={field.id} className="flex flex-col">
+              <label
+                htmlFor={field.id}
+                className="mb-1 text-gray-400 font-medium"
+              >
+                {field.label}
+              </label>
+              {field.type === "select" ? (
+                <select
+                  id={field.id}
+                  value={form.type || ""}
+                  onChange={(e) => setForm({ ...form, type: e.target.value })}
+                  className="p-3 rounded-lg bg-gray-700 border border-gray-600 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
+                >
+                  <option value="">Select Type</option>
+                  <option value="Movie">Movie</option>
+                  <option value="TV Show">TV Show</option>
+                </select>
+              ) : (
+                <input
+                  id={field.id}
+                  type={field.type}
+                  value={form[field.key as keyof Movie] || ""}
+                  onChange={(e) =>
+                    setForm({
+                      ...form,
+                      [field.key]:
+                        field.type === "number"
+                          ? parseFloat(e.target.value)
+                          : e.target.value,
+                    })
+                  }
+                  className="p-3 rounded-lg bg-gray-700 border border-gray-600 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
+                  placeholder={`Enter ${field.label.toLowerCase()}`}
+                />
+              )}
+            </div>
+          ))}
         </div>
 
-        {/* Add/Update Button */}
         <div className="flex justify-end mt-6">
           <button
             onClick={handleAddOrUpdate}
-            className={`flex items-center justify-center space-x-2 w-full sm:w-auto px-8 py-3 rounded-xl font-bold transition duration-300 transform hover:scale-[1.01] shadow-lg
+            className={`flex items-center justify-center space-x-2 w-full sm:w-auto px-8 py-3 rounded-xl font-bold transition duration-300
               ${
                 form.id
-                  ? "bg-yellow-500 text-gray-900 hover:bg-yellow-400 focus:ring-yellow-500"
-                  : "bg-indigo-600 text-white hover:bg-indigo-700 focus:ring-indigo-500"
-              }
-            `}
+                  ? "bg-yellow-500 text-gray-900 hover:bg-yellow-400"
+                  : "bg-indigo-600 text-white hover:bg-indigo-700"
+              }`}
           >
             {form.id ? (
               <>
                 <FiEdit /> <span>Update Movie</span>
               </>
             ) : (
-              <>
-                <span>Add Movie</span>
-              </>
+              <span>Add Movie</span>
             )}
           </button>
         </div>
@@ -320,7 +248,7 @@ const Dashboard: React.FC = () => {
 
       {/* Search & Filter */}
       <section className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4 p-4 bg-gray-800 rounded-xl shadow-xl">
-        <div className="flex items-center w-full md:w-1/3 bg-gray-700 rounded-lg px-4 py-3 border border-gray-600 focus-within:ring-2 focus-within:ring-indigo-500 transition">
+        <div className="flex items-center w-full md:w-1/3 bg-gray-700 rounded-lg px-4 py-3 border border-gray-600">
           <FiSearch className="text-indigo-400 mr-3 text-xl" />
           <input
             type="text"
@@ -334,7 +262,7 @@ const Dashboard: React.FC = () => {
         <select
           value={filterType}
           onChange={(e) => setFilterType(e.target.value)}
-          className="border border-gray-600 bg-gray-700 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-indigo-500 appearance-none cursor-pointer transition w-full md:w-auto"
+          className="border border-gray-600 bg-gray-700 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-indigo-500 w-full md:w-auto"
         >
           <option value="">All Types</option>
           <option value="Movie">Movies</option>
@@ -342,10 +270,10 @@ const Dashboard: React.FC = () => {
         </select>
       </section>
 
-      {/* Movies Grid Section */}
+      {/* Movies Section */}
       <section className="bg-gray-800 rounded-xl shadow-2xl overflow-hidden">
-        {/* Grid Header */}
-        <div className="grid grid-cols-10 gap-2 text-left bg-gray-700 p-4 font-extrabold text-sm uppercase tracking-wider text-indigo-400 sticky top-0 z-10 border-b border-gray-600">
+        {/* Desktop Grid */}
+        <div className="hidden lg:grid grid-cols-10 gap-2 text-left bg-gray-700 p-4 font-extrabold text-sm uppercase tracking-wider text-indigo-400 sticky top-0 z-10 border-b border-gray-600">
           <div className="col-span-1 text-center">Poster</div>
           <div className="col-span-2 text-center">Title</div>
           <div>Type</div>
@@ -357,23 +285,73 @@ const Dashboard: React.FC = () => {
           <div>Actions</div>
         </div>
 
-        {/* Movies Grid Content */}
-        <div>
+        {/* Movie Cards for mobile/tablet */}
+        <div className="lg:hidden flex flex-col gap-4 p-4">
           {filteredMovies.map((m, idx) => {
             const isLast = filteredMovies.length === idx + 1;
             return (
               <div
                 key={m.id}
                 ref={isLast ? lastMovieRef : null}
-                className="grid grid-cols-10 gap-2 items-center text-left border-b border-gray-700 p-4 hover:bg-gray-700/50 transition duration-150 text-sm"
+                className="bg-gray-700 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center gap-4 shadow-md"
               >
-                {/* Poster */}
+                <img
+                  src={m.posterUrl || ""}
+                  alt={m.title}
+                  className="w-24 h-36 object-cover rounded-lg self-center sm:self-start"
+                />
+                <div className="flex-1 space-y-1">
+                  <h3 className="text-xl font-semibold">{m.title}</h3>
+                  <p className="text-sm text-gray-400">
+                    <span className="font-medium">Type:</span> {m.type}
+                  </p>
+                  {m.director && (
+                    <p className="text-sm text-gray-400">
+                      <span className="font-medium">Director:</span>{" "}
+                      {m.director}
+                    </p>
+                  )}
+                  {m.year && (
+                    <p className="text-sm text-gray-400">
+                      <span className="font-medium">Year:</span> {m.year}
+                    </p>
+                  )}
+                  <div className="flex gap-2 mt-2">
+                    <button
+                      onClick={() => setForm(m)}
+                      className="p-2 rounded-full bg-yellow-400 hover:bg-yellow-500 text-gray-900 transition"
+                    >
+                      <FiEdit />
+                    </button>
+                    <button
+                      onClick={() => handleDelete(m.id)}
+                      className="p-2 rounded-full bg-red-600 hover:bg-red-700 text-white transition"
+                    >
+                      <FiTrash2 />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Desktop Table Rows */}
+        <div className="hidden lg:block">
+          {filteredMovies.map((m, idx) => {
+            const isLast = filteredMovies.length === idx + 1;
+            return (
+              <div
+                key={m.id}
+                ref={isLast ? lastMovieRef : null}
+                className="grid grid-cols-10 gap-2 items-center border-b border-gray-700 p-4 hover:bg-gray-700/50 transition duration-150 text-sm"
+              >
                 <div className="col-span-1 flex justify-center">
                   {m.posterUrl ? (
                     <img
                       src={m.posterUrl}
                       alt={m.title}
-                      className="w-16 h-24 object-cover rounded-md shadow-md"
+                      className="w-16 h-24 object-cover rounded-md"
                     />
                   ) : (
                     <div className="w-16 h-24 bg-gray-600 flex items-center justify-center text-xs text-gray-400 rounded-md">
@@ -381,16 +359,13 @@ const Dashboard: React.FC = () => {
                     </div>
                   )}
                 </div>
-                {/* Movie Details */}
                 <div className="col-span-2 text-center font-semibold text-base">
                   {m.title}
                 </div>
                 <div>
                   <span
                     className={`px-3 py-1 rounded-full text-xs font-medium ${
-                      m.type === "Movie"
-                        ? "bg-green-600 text-white"
-                        : "bg-blue-600 text-white"
+                      m.type === "Movie" ? "bg-green-600" : "bg-blue-600"
                     }`}
                   >
                     {m.type}
@@ -401,21 +376,18 @@ const Dashboard: React.FC = () => {
                 <div>{m.location || "-"}</div>
                 <div>{m.duration || "-"}</div>
                 <div>{m.year || "-"}</div>
-                {/* Actions */}
-                <div className="flex justify-start space-x-2">
+                <div className="flex gap-2">
                   <button
                     onClick={() => setForm(m)}
-                    className="p-2 rounded-full text-gray-900 bg-yellow-400 hover:bg-yellow-500 transition duration-150 transform hover:scale-110 shadow-md"
-                    title="Edit"
+                    className="p-2 rounded-full bg-yellow-400 text-gray-900 hover:bg-yellow-500 transition"
                   >
-                    <FiEdit className="text-lg" />
+                    <FiEdit />
                   </button>
                   <button
                     onClick={() => handleDelete(m.id)}
-                    className="p-2 rounded-full text-white bg-red-600 hover:bg-red-700 transition duration-150 transform hover:scale-110 shadow-md"
-                    title="Delete"
+                    className="p-2 rounded-full bg-red-600 text-white hover:bg-red-700 transition"
                   >
-                    <FiTrash2 className="text-lg" />
+                    <FiTrash2 />
                   </button>
                 </div>
               </div>
@@ -423,20 +395,19 @@ const Dashboard: React.FC = () => {
           })}
         </div>
 
-        {/* Loading and End of List Indicators */}
-        <div className="p-4">
+        <div className="p-4 text-center">
           {loading && (
-            <p className="text-center text-indigo-400 font-medium animate-pulse text-lg">
+            <p className="text-indigo-400 font-medium animate-pulse text-lg">
               Loading more movies...
             </p>
           )}
           {!hasMore && (
-            <p className="text-center text-gray-500 font-medium">
+            <p className="text-gray-500 font-medium">
               You've reached the end of your movie collection.
             </p>
           )}
           {filteredMovies.length === 0 && !loading && (
-            <p className="text-center text-gray-500 font-medium">
+            <p className="text-gray-500 font-medium">
               No movies found matching your criteria.
             </p>
           )}
