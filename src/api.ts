@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:5000/api/auth";
+const API_URL = "https://movieslistbackend.onrender.com/api/auth";
 
 export const signupUser = async (data: {
   username: string;
@@ -12,6 +12,6 @@ export const loginUser = async (data: { email: string; password: string }) =>
   axios.post(`${API_URL}/login`, data);
 
 export const getProfile = (token: string) =>
-  axios.get("http://localhost:5000/api/auth/profile", {
+  axios.get("https://movieslistbackend.onrender.com/api/auth/profile", {
     headers: { Authorization: `Bearer ${token}` },
   });

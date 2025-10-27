@@ -3,7 +3,11 @@ import { loginUser } from "../api";
 import { useNavigate, Link } from "react-router-dom";
 import toast from "react-hot-toast";
 
-const Login: React.FC = () => {
+interface LoginProps {
+  onLoginSuccess?: (token: string) => void;
+}
+
+const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -26,6 +30,7 @@ const Login: React.FC = () => {
       if (!token) throw new Error("No token returned from server");
 
       localStorage.setItem("token", token);
+      onLoginSuccess?.(token); // 👈 Update App state immediately
       toast.success("Login successful!");
 
       navigate("/dashboard");
