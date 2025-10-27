@@ -3,7 +3,7 @@ import { fetchMovies, addMovie, updateMovie, deleteMovie } from "../movies";
 import { getProfile } from "../api";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
-import { FiEdit, FiTrash2 } from "react-icons/fi";
+import { FiEdit, FiTrash2, FiSearch, FiLogOut } from "react-icons/fi"; // Added FiLogOut for the button
 
 interface Movie {
   id: number;
@@ -30,6 +30,8 @@ const Dashboard: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterType, setFilterType] = useState("");
 
   const navigate = useNavigate();
   const observer = useRef<IntersectionObserver | null>(null);
@@ -80,6 +82,7 @@ const Dashboard: React.FC = () => {
   useEffect(() => {
     loadUser();
   }, []);
+
   useEffect(() => {
     if (user && hasMore) loadMovies(page);
   }, [user, page]);
@@ -120,244 +123,325 @@ const Dashboard: React.FC = () => {
     }
   };
 
+  // Filter + Search logic
+  const filteredMovies = movies.filter((m) => {
+    const matchesSearch = m.title
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase());
+    const matchesType = filterType ? m.type === filterType : true;
+    return matchesSearch && matchesType;
+  });
+
   return (
-    <div className="p-8 w-screen min-h-screen bg-linear-to-b from-gray-900 via-gray-800 to-gray-900 text-white">
+    <div className="p-8 w-screen min-h-screen bg-gray-900 text-white">
       {/* Header */}
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">
-          Welcome, <span className="text-blue-600">{user?.username}</span>
+      <header className="flex justify-between items-center mb-10 border-b border-gray-700 pb-4">
+        <h1 className="text-4xl font-extrabold tracking-tight">
+          Welcome, <span className="text-indigo-400">{user?.username}</span>
         </h1>
         <button
           onClick={handleLogout}
-          className="bg-[#1a1a1a] px-4 py-2 border border-gray-500 font-bold rounded-2xl hover:bg-red-700 transition"
+          className="flex items-center space-x-2 bg-red-600 hover:bg-red-700 transition duration-200 text-white font-semibold py-2 px-5 rounded-full shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-red-500"
         >
-          Logout
+          <FiLogOut className="text-lg" />
+          <span>Logout</span>
         </button>
-      </div>
+      </header>
 
-      {/* Movie Form */}
-      <div className="mb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Title */}
-        <div className="flex flex-col">
-          <label htmlFor="title" className="mb-1 text-gray-300 font-semibold">
-            Title
-          </label>
-          <input
-            id="title"
-            type="text"
-            value={form.title || ""}
-            onChange={(e) => setForm({ ...form, title: e.target.value })}
-            className="border p-2 rounded bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
-            placeholder="Enter movie title"
-          />
-        </div>
+      {/* Movie Form Section */}
+      <section className="bg-gray-800 p-6 rounded-xl shadow-2xl mb-10">
+        <h2 className="text-2xl font-bold mb-6 text-indigo-400">
+          {form.id ? "Edit Movie" : "Add New Movie"}
+        </h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {/* Title */}
+          <div className="flex flex-col">
+            <label htmlFor="title" className="mb-1 text-gray-400 font-medium">
+              Title <span className="text-red-500">*</span>
+            </label>
+            <input
+              id="title"
+              type="text"
+              value={form.title || ""}
+              onChange={(e) => setForm({ ...form, title: e.target.value })}
+              className="p-3 rounded-lg bg-gray-700 border border-gray-600 placeholder-gray-500 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition shadow-inner"
+              placeholder="Enter movie title"
+            />
+          </div>
 
-        {/* Type */}
-        <div className="flex flex-col">
-          <label htmlFor="type" className="mb-1 text-gray-300 font-semibold">
-            Type
-          </label>
-          <select
-            id="type"
-            value={form.type || ""}
-            onChange={(e) => setForm({ ...form, type: e.target.value })}
-            className="border p-2 rounded bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
-          >
-            <option value="">Select Type</option>
-            <option value="Movie">Movie</option>
-            <option value="TV Show">TV Show</option>
-          </select>
-        </div>
+          {/* Type */}
+          <div className="flex flex-col">
+            <label htmlFor="type" className="mb-1 text-gray-400 font-medium">
+              Type <span className="text-red-500">*</span>
+            </label>
+            <select
+              id="type"
+              value={form.type || ""}
+              onChange={(e) => setForm({ ...form, type: e.target.value })}
+              className="p-3 rounded-lg bg-gray-700 border border-gray-600 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition appearance-none cursor-pointer shadow-inner"
+            >
+              <option value="">Select Type</option>
+              <option value="Movie">Movie</option>
+              <option value="TV Show">TV Show</option>
+            </select>
+          </div>
 
-        {/* Director */}
-        <div className="flex flex-col">
-          <label
-            htmlFor="director"
-            className="mb-1 text-gray-300 font-semibold"
-          >
-            Director
-          </label>
-          <input
-            id="director"
-            type="text"
-            value={form.director || ""}
-            onChange={(e) => setForm({ ...form, director: e.target.value })}
-            className="border p-2 rounded bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
-            placeholder="Enter director name"
-          />
-        </div>
+          {/* Director */}
+          <div className="flex flex-col">
+            <label
+              htmlFor="director"
+              className="mb-1 text-gray-400 font-medium"
+            >
+              Director
+            </label>
+            <input
+              id="director"
+              type="text"
+              value={form.director || ""}
+              onChange={(e) => setForm({ ...form, director: e.target.value })}
+              className="p-3 rounded-lg bg-gray-700 border border-gray-600 placeholder-gray-500 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition shadow-inner"
+              placeholder="Enter director name"
+            />
+          </div>
 
-        {/* Budget */}
-        <div className="flex flex-col">
-          <label htmlFor="budget" className="mb-1 text-gray-300 font-semibold">
-            Budget
-          </label>
-          <input
-            id="budget"
-            type="number"
-            value={form.budget || ""}
-            onChange={(e) =>
-              setForm({ ...form, budget: parseFloat(e.target.value) })
-            }
-            className="border p-2 rounded bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
-            placeholder="Enter budget"
-          />
-        </div>
+          {/* Budget */}
+          <div className="flex flex-col">
+            <label htmlFor="budget" className="mb-1 text-gray-400 font-medium">
+              Budget
+            </label>
+            <input
+              id="budget"
+              type="number"
+              value={form.budget || ""}
+              onChange={(e) =>
+                setForm({ ...form, budget: parseFloat(e.target.value) })
+              }
+              className="p-3 rounded-lg bg-gray-700 border border-gray-600 placeholder-gray-500 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition shadow-inner"
+              placeholder="Enter budget (e.g., 5000000)"
+            />
+          </div>
 
-        {/* Location */}
-        <div className="flex flex-col">
-          <label
-            htmlFor="location"
-            className="mb-1 text-gray-300 font-semibold"
-          >
-            Location
-          </label>
-          <input
-            id="location"
-            type="text"
-            value={form.location || ""}
-            onChange={(e) => setForm({ ...form, location: e.target.value })}
-            className="border p-2 rounded bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
-            placeholder="Enter location"
-          />
-        </div>
+          {/* Location */}
+          <div className="flex flex-col">
+            <label
+              htmlFor="location"
+              className="mb-1 text-gray-400 font-medium"
+            >
+              Location
+            </label>
+            <input
+              id="location"
+              type="text"
+              value={form.location || ""}
+              onChange={(e) => setForm({ ...form, location: e.target.value })}
+              className="p-3 rounded-lg bg-gray-700 border border-gray-600 placeholder-gray-500 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition shadow-inner"
+              placeholder="Enter location"
+            />
+          </div>
 
-        {/* Duration */}
-        <div className="flex flex-col">
-          <label
-            htmlFor="duration"
-            className="mb-1 text-gray-300 font-semibold"
-          >
-            Duration
-          </label>
-          <input
-            id="duration"
-            type="text"
-            value={form.duration || ""}
-            onChange={(e) => setForm({ ...form, duration: e.target.value })}
-            className="border p-2 rounded bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
-            placeholder="Enter duration"
-          />
-        </div>
+          {/* Duration */}
+          <div className="flex flex-col">
+            <label
+              htmlFor="duration"
+              className="mb-1 text-gray-400 font-medium"
+            >
+              Duration
+            </label>
+            <input
+              id="duration"
+              type="text"
+              value={form.duration || ""}
+              onChange={(e) => setForm({ ...form, duration: e.target.value })}
+              className="p-3 rounded-lg bg-gray-700 border border-gray-600 placeholder-gray-500 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition shadow-inner"
+              placeholder="Enter duration (e.g., 2h 15m)"
+            />
+          </div>
 
-        {/* Year */}
-        <div className="flex flex-col">
-          <label htmlFor="year" className="mb-1 text-gray-300 font-semibold">
-            Year
-          </label>
-          <input
-            id="year"
-            type="number"
-            value={form.year || ""}
-            onChange={(e) =>
-              setForm({ ...form, year: parseInt(e.target.value) })
-            }
-            className="border p-2 rounded bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
-            placeholder="Enter release year"
-          />
-        </div>
+          {/* Year */}
+          <div className="flex flex-col">
+            <label htmlFor="year" className="mb-1 text-gray-400 font-medium">
+              Year
+            </label>
+            <input
+              id="year"
+              type="number"
+              value={form.year || ""}
+              onChange={(e) =>
+                setForm({ ...form, year: parseInt(e.target.value) })
+              }
+              className="p-3 rounded-lg bg-gray-700 border border-gray-600 placeholder-gray-500 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition shadow-inner"
+              placeholder="Enter release year"
+            />
+          </div>
 
-        {/* Poster URL */}
-        <div className="flex flex-col">
-          <label
-            htmlFor="posterUrl"
-            className="mb-1 text-gray-300 font-semibold"
-          >
-            Poster URL
-          </label>
-          <input
-            id="posterUrl"
-            type="text"
-            value={form.posterUrl || ""}
-            onChange={(e) => setForm({ ...form, posterUrl: e.target.value })}
-            className="border p-2 rounded bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
-            placeholder="Enter poster URL"
-          />
+          {/* Poster URL */}
+          <div className="flex flex-col">
+            <label
+              htmlFor="posterUrl"
+              className="mb-1 text-gray-400 font-medium"
+            >
+              Poster URL
+            </label>
+            <input
+              id="posterUrl"
+              type="text"
+              value={form.posterUrl || ""}
+              onChange={(e) => setForm({ ...form, posterUrl: e.target.value })}
+              className="p-3 rounded-lg bg-gray-700 border border-gray-600 placeholder-gray-500 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition shadow-inner"
+              placeholder="Enter poster URL"
+            />
+          </div>
         </div>
 
         {/* Add/Update Button */}
-        <div className="flex items-end">
+        <div className="flex justify-end mt-6">
           <button
             onClick={handleAddOrUpdate}
-            className="border p-2 rounded bg-[#1a1a1a]  focus:outline-none focus:ring-2  focus:ring-indigo-500 transition w-full"
+            className={`flex items-center justify-center space-x-2 w-full sm:w-auto px-8 py-3 rounded-xl font-bold transition duration-300 transform hover:scale-[1.01] shadow-lg
+              ${
+                form.id
+                  ? "bg-yellow-500 text-gray-900 hover:bg-yellow-400 focus:ring-yellow-500"
+                  : "bg-indigo-600 text-white hover:bg-indigo-700 focus:ring-indigo-500"
+              }
+            `}
           >
-            {form.id ? "Update Movie" : "Add Movie"}
+            {form.id ? (
+              <>
+                <FiEdit /> <span>Update Movie</span>
+              </>
+            ) : (
+              <>
+                <span>Add Movie</span>
+              </>
+            )}
           </button>
         </div>
-      </div>
+      </section>
 
-      {/* Grid Header */}
-      <div className="grid grid-cols-9 gap-2 text-center bg-gray-700 p-2 font-bold sticky top-0 z-10 rounded">
-        <div>Poster</div>
-        <div>Title</div>
-        <div>Type</div>
-        <div>Director</div>
-        <div>Budget</div>
-        <div>Location</div>
-        <div>Duration</div>
-        <div>Year</div>
-        <div>Actions</div>
-      </div>
+      {/* Search & Filter */}
+      <section className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4 p-4 bg-gray-800 rounded-xl shadow-xl">
+        <div className="flex items-center w-full md:w-1/3 bg-gray-700 rounded-lg px-4 py-3 border border-gray-600 focus-within:ring-2 focus-within:ring-indigo-500 transition">
+          <FiSearch className="text-indigo-400 mr-3 text-xl" />
+          <input
+            type="text"
+            placeholder="Search by title..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="bg-transparent w-full outline-none text-white placeholder-gray-400"
+          />
+        </div>
 
-      {/* Movies Grid */}
-      <div className="mt-2">
-        {movies.map((m, idx) => {
-          const isLast = movies.length === idx + 1;
-          return (
-            <div
-              key={m.id}
-              ref={isLast ? lastMovieRef : null}
-              className="grid grid-cols-9 gap-2 items-center text-center border-b border-gray-600 p-2 hover:bg-gray-800 rounded transition"
-            >
-              <div className="flex justify-center">
-                {m.posterUrl ? (
-                  <img
-                    src={m.posterUrl}
-                    alt={m.title}
-                    className="w-20 h-28 object-cover rounded shadow-lg hover:scale-105 transition-transform"
-                  />
-                ) : (
-                  <div className="w-20 h-28 bg-gray-600 flex items-center justify-center rounded">
-                    No Image
-                  </div>
-                )}
+        <select
+          value={filterType}
+          onChange={(e) => setFilterType(e.target.value)}
+          className="border border-gray-600 bg-gray-700 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-indigo-500 appearance-none cursor-pointer transition w-full md:w-auto"
+        >
+          <option value="">All Types</option>
+          <option value="Movie">Movies</option>
+          <option value="TV Show">TV Shows</option>
+        </select>
+      </section>
+
+      {/* Movies Grid Section */}
+      <section className="bg-gray-800 rounded-xl shadow-2xl overflow-hidden">
+        {/* Grid Header */}
+        <div className="grid grid-cols-10 gap-2 text-left bg-gray-700 p-4 font-extrabold text-sm uppercase tracking-wider text-indigo-400 sticky top-0 z-10 border-b border-gray-600">
+          <div className="col-span-1 text-center">Poster</div>
+          <div className="col-span-2 text-center">Title</div>
+          <div>Type</div>
+          <div>Director</div>
+          <div>Budget</div>
+          <div>Location</div>
+          <div>Duration</div>
+          <div>Year</div>
+          <div>Actions</div>
+        </div>
+
+        {/* Movies Grid Content */}
+        <div>
+          {filteredMovies.map((m, idx) => {
+            const isLast = filteredMovies.length === idx + 1;
+            return (
+              <div
+                key={m.id}
+                ref={isLast ? lastMovieRef : null}
+                className="grid grid-cols-10 gap-2 items-center text-left border-b border-gray-700 p-4 hover:bg-gray-700/50 transition duration-150 text-sm"
+              >
+                {/* Poster */}
+                <div className="col-span-1 flex justify-center">
+                  {m.posterUrl ? (
+                    <img
+                      src={m.posterUrl}
+                      alt={m.title}
+                      className="w-16 h-24 object-cover rounded-md shadow-md"
+                    />
+                  ) : (
+                    <div className="w-16 h-24 bg-gray-600 flex items-center justify-center text-xs text-gray-400 rounded-md">
+                      No Poster
+                    </div>
+                  )}
+                </div>
+                {/* Movie Details */}
+                <div className="col-span-2 text-center font-semibold text-base">
+                  {m.title}
+                </div>
+                <div>
+                  <span
+                    className={`px-3 py-1 rounded-full text-xs font-medium ${
+                      m.type === "Movie"
+                        ? "bg-green-600 text-white"
+                        : "bg-blue-600 text-white"
+                    }`}
+                  >
+                    {m.type}
+                  </span>
+                </div>
+                <div>{m.director || "-"}</div>
+                <div>{m.budget ? `$${m.budget.toLocaleString()}` : "-"}</div>
+                <div>{m.location || "-"}</div>
+                <div>{m.duration || "-"}</div>
+                <div>{m.year || "-"}</div>
+                {/* Actions */}
+                <div className="flex justify-start space-x-2">
+                  <button
+                    onClick={() => setForm(m)}
+                    className="p-2 rounded-full text-gray-900 bg-yellow-400 hover:bg-yellow-500 transition duration-150 transform hover:scale-110 shadow-md"
+                    title="Edit"
+                  >
+                    <FiEdit className="text-lg" />
+                  </button>
+                  <button
+                    onClick={() => handleDelete(m.id)}
+                    className="p-2 rounded-full text-white bg-red-600 hover:bg-red-700 transition duration-150 transform hover:scale-110 shadow-md"
+                    title="Delete"
+                  >
+                    <FiTrash2 className="text-lg" />
+                  </button>
+                </div>
               </div>
-              <div>{m.title}</div>
-              <div>{m.type}</div>
-              <div>{m.director || "-"}</div>
-              <div>{m.budget || "-"}</div>
-              <div>{m.location || "-"}</div>
-              <div>{m.duration || "-"}</div>
-              <div>{m.year || "-"}</div>
-              <div className="flex justify-center space-x-2">
-                <button
-                  onClick={() => setForm(m)}
-                  className="bg-yellow-500 p-2 rounded hover:bg-yellow-600 transition"
-                >
-                  <FiEdit className="text-white" />
-                </button>
-                <button
-                  onClick={() => handleDelete(m.id)}
-                  className="bg-red-500 p-2 rounded hover:bg-red-600 transition"
-                >
-                  <FiTrash2 className="text-white" />
-                </button>
-              </div>
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+        </div>
 
-      {loading && (
-        <p className="mt-4 text-center text-gray-400 animate-pulse">
-          Loading...
-        </p>
-      )}
-      {!hasMore && (
-        <p className="mt-4 text-center text-gray-400 font-medium">
-          End of Movies
-        </p>
-      )}
+        {/* Loading and End of List Indicators */}
+        <div className="p-4">
+          {loading && (
+            <p className="text-center text-indigo-400 font-medium animate-pulse text-lg">
+              Loading more movies...
+            </p>
+          )}
+          {!hasMore && (
+            <p className="text-center text-gray-500 font-medium">
+              You've reached the end of your movie collection.
+            </p>
+          )}
+          {filteredMovies.length === 0 && !loading && (
+            <p className="text-center text-gray-500 font-medium">
+              No movies found matching your criteria.
+            </p>
+          )}
+        </div>
+      </section>
     </div>
   );
 };

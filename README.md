@@ -1,73 +1,161 @@
-# React + TypeScript + Vite
+# 🎬 Movies Dashboard
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A full-stack **Movies Management Dashboard** built using **React + TypeScript + Express + Prisma + MySQL**.  
+Users can **sign up, log in, and manage their own list of movies or TV shows** — including details like title, type, director, budget, and more — all with a sleek movie-themed UI.
 
-Currently, two official plugins are available:
+## 🚀 Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+### 🎥 Movie Management
 
-## React Compiler
+- Add, edit, and delete movies with real-time updates.
+- Infinite scrolling to load more movies dynamically.
+- Poster image preview for each movie.
+- Grid-based layout inspired by modern movie databases.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### 👤 Authentication
 
-## Expanding the ESLint configuration
+- Secure signup and login using JWT.
+- Protected routes (only logged-in users can access the dashboard).
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### 🧑‍💻 User Dashboard
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+- Users can add movies and update movie details
+- Each user sees only their movies.
+- Logout functionality to clear sessions securely.
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+### 💅 UI & UX
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+- Fully responsive and dark-themed interface.
+- Built with **Tailwind CSS** for fast and modern styling.
+- Toast notifications for every action (add, update, delete, error, etc).
+
+## 🧰 Tech Stack
+
+### Frontend
+
+- ⚛️ **React** (with TypeScript)
+- 🎨 **Tailwind CSS**
+- 🔔 **React Hot Toast**
+- 🧭 **React Router**
+
+### Backend
+
+- 🚀 **Express.js**
+- 🧠 **Prisma ORM**
+- 🗄️ **PostgreSQL**
+- 🔒 **JWT Authentication**
+- ⚙️ **Zod validation**
+
+## 📦 Folder Structure
+
+```
+├── backend/
+│ ├── prisma/
+│ │ └── schema.prisma
+│ ├── controllers/
+│ ├── routes/
+│ ├── server.ts
+│ ├── package.json
+│ └── ...
+│
+├── frontend/
+│ ├── src/
+│ │ ├── components/
+│ │ ├── pages/
+│ │ │ ├── Dashboard.tsx
+│ │ │ ├── Login.tsx
+│ │ │ └── Signup.tsx
+│ │ ├── movies.ts
+│ │ ├── api.ts
+│ │ └── main.tsx
+│ ├── tailwind.config.cjs
+│ ├── package.json
+│ ├── README.md
+│ └── ...
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## ⚙️ Setup Instructions
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+### 1️⃣ Clone the Repository
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+git clone https://github.com/your-username/movies-dashboard.git
+cd movies-dashboard
 ```
+
+### 2️⃣ Setup Backend
+
+```bash
+cd backend
+npm install
+```
+
+#### Configure .env file:
+
+```bash
+DATABASE_URL="mysql://your_username:your_password@localhost:3306/your_dbname"
+JWT_SECRET="your_jwt_secret_key"
+PORT=5000
+```
+
+#### Run Migrations
+
+```bash
+npx prisma generate
+npx prisma migrate dev --name init
+Start Backend Server
+```
+
+### 3️⃣ Setup Frontend
+
+From Home Directory
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Frontend runs by default on 👉 http://localhost:5173
+
+# 🧩 API Endpoints
+
+| Method | Endpoint        | Description              | Auth Required |
+| ------ | --------------- | ------------------------ | ------------- |
+| POST   | /api/signup     | Create a new user        | ❌            |
+| POST   | /api/login      | Login and get JWT token  | ❌            |
+| GET    | /api/profile    | Get logged-in user info  | ✅            |
+| GET    | /api/movies     | Fetch movies (paginated) | ✅            |
+| POST   | /api/movies     | Add a new movie          | ✅            |
+| PUT    | /api/movies/:id | Update movie details     | ✅            |
+| DELETE | /api/movies/:id | Delete a movie           | ✅            |
+
+# 🧠 Pagination Logic
+
+- Movies are fetched 2 at a time.
+- Infinite scrolling automatically loads more when reaching the bottom.
+
+# 🖼️ Preview
+
+🎨 A modern, dark-themed dashboard designed for an immersive movie management experience.
+
+### Login Page
+
+![LoginPage](./output/login.png)
+
+---
+
+### Signup Page
+
+![SignUpPAge](./output/signup.png)
+
+---
+
+### Dashboard Page
+
+![DashboardPage](./output/dashboard.png)
+
+# 🧑‍💼 Author
+
+Arpit Kansal \
+kansalarpit06@gmail.com
